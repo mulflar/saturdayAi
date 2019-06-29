@@ -24,7 +24,7 @@ import pandas as pd
 El dataset TASS se puede obtener a traves de [este enlace](http://www.sepln.org/workshops/tass/tass_data/download.php/)
 """
 
-!head -n 20 general-train-tagged.xml
+head -n 20 general-train-tagged.xml
 
 """Como podemos ver, el dataset esta en formato xml, para utilizarlo lo transformaremos a csv
 
