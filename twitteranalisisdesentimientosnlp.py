@@ -9,9 +9,9 @@ Original file is located at
 ##Librerias
 """
 
-!pip install nltk > null
-!pip install sklearn > null
-!rm null
+# !pip install nltk > null
+# !pip install sklearn > null
+# !rm null
 
 # %reload_ext autoreload
 # %autoreload 2
