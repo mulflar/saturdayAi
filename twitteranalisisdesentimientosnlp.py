@@ -207,11 +207,11 @@ def tokenize(text):
 
 """Conversion  a binario de P y N"""
 
-#tweets_corpus = tweets_corpus[tweets_corpus.polarity != 'NEU']
+tweets_corpus = tweets_corpus[tweets_corpus.polarity != 'NEU']
 
-#tweets_corpus['polarity_bin'] = 0
-#tweets_corpus.polarity_bin[tweets_corpus.polarity.isin(['P', 'P+'])] = 1
-#tweets_corpus.polarity_bin.value_counts(normalize=True)
+tweets_corpus['polarity_bin'] = 0
+tweets_corpus.polarity_bin[tweets_corpus.polarity.isin(['P', 'P+'])] = 1
+tweets_corpus.polarity_bin.value_counts(normalize=True)
 
 #tweets_corpus_test = tweets_corpus[0:1000];
 #tweets_corpus = tweets_corpus[1000:]
