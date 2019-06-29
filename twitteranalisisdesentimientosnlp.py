@@ -250,19 +250,19 @@ parameters = {
     'cls__max_iter': (500, 1000)
 }
 
-try:
-  from sklearn.externals import joblib
-  grid_search = joblib.load("grid_search.pkl")
-except:  
-  grid_search = GridSearchCV(pipeline, parameters, n_jobs=1 , scoring='roc_auc', verbose=10 )
-  grid_search.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
+#try:
+#from sklearn.externals import joblib
+#grid_search = joblib.load("grid_search.pkl")
+#except:  
+  #grid_search = GridSearchCV(pipeline, parameters, n_jobs=1 , scoring='roc_auc', verbose=10 )
+  #grid_search.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
 
-grid_search.best_params_
+#grid_search.best_params_
 
 """Guardar el modelo"""
 
-from sklearn.externals import joblib
-joblib.dump(grid_search, 'grid_search.pkl')
+#from sklearn.externals import joblib
+#joblib.dump(grid_search, 'grid_search.pkl')
 
 """# predicciones
 
@@ -310,8 +310,8 @@ pipeline = Pipeline([
              )),
 ])
 
-#pipeline.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
-pipeline.fit(tweets_corpus.content, tweets_corpus.polarity)
+pipeline.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
+#pipeline.fit(tweets_corpus.content, tweets_corpus.polarity)
 
 tweets = pd.read_csv('tweets.csv', encoding='utf-8')
 tweets["polarity"] = pipeline.predict(tweets.Tweet)
