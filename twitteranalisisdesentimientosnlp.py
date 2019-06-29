@@ -58,7 +58,7 @@ try:
 except:
 
     from lxml import objectify
-    xml = objectify.parse(open('stompol-train-tagged.xml'))
+    xml = objectify.parse(open('stompol-train-tagged.xml', encoding="utf8"))
     #sample tweet object
     root = xml.getroot()
     stompol_tweets_corpus_train = pd.DataFrame(columns=('content', 'polarity'))
@@ -80,7 +80,7 @@ try:
 except:
 
     from lxml import objectify
-    xml = objectify.parse(open('stompol-test-tagged.xml'))
+    xml = objectify.parse(open('stompol-test-tagged.xml', encoding="utf8"))
     #sample tweet object
     root = xml.getroot()
     stompol_tweets_corpus_test = pd.DataFrame(columns=('content', 'polarity'))
@@ -102,7 +102,7 @@ try:
 except:
 
     from lxml import objectify
-    xml = objectify.parse(open('socialtv-test-tagged.xml'))
+    xml = objectify.parse(open('socialtv-test-tagged.xml', encoding="utf8"))
     #sample tweet object
     root = xml.getroot()
     social_tweets_corpus_test = pd.DataFrame(columns=('content', 'polarity'))
@@ -124,7 +124,7 @@ try:
 except:
 
     from lxml import objectify
-    xml = objectify.parse(open('socialtv-train-tagged.xml'))
+    xml = objectify.parse(open('socialtv-train-tagged.xml', encoding="utf8"))
     #sample tweet object
     root = xml.getroot()
     social_tweets_corpus_train = pd.DataFrame(columns=('content', 'polarity'))
