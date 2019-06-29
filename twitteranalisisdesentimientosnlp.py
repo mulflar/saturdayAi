@@ -36,7 +36,7 @@ try:
 except:
 
     from lxml import objectify
-    xml = objectify.parse(open('general-train-tagged.xml'))
+    xml = objectify.parse(open('general-train-tagged.xml', encoding="utf8"))
     #sample tweet object
     root = xml.getroot()
     general_tweets_corpus_train = pd.DataFrame(columns=('content', 'polarity', 'agreement'))
