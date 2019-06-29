@@ -316,33 +316,3 @@ pipeline.fit(tweets_corpus.content, tweets_corpus.polarity)
 tweets = pd.read_csv('tweets.csv', encoding='utf-8')
 tweets["polarity"] = pipeline.predict(tweets.Tweet)
 tweets
-
-"""#caca"""
-
-# Language model data
-??TextLMDataBunch.from_df
-data_lm = TextLMDataBunch.from_csv(path, file, delimiter= ";" ,text_cols = 1, label_cols=0)
-# Classifier model data
-data_clas = TextClasDataBunch.from_csv(path, file, vocab=data_lm.train_ds.vocab, bs=32,  delimiter= ";",text_cols = 1, label_cols=0)
-
-#Since this step can be a bit time-consuming, it's best to save the result with:
-data_lm.save('data_lm_export.pkl')
-data_clas.save('data_clas_export.pkl')
-
-#This will create a 'tmp' directory where all the computed stuff will be stored. You can then reload those results with:
-data_lm = load_data(path, 'data_lm_export.pkl')
-data_clas = load_data(path, 'data_clas_export.pkl', bs=16)
-
-learn = language_model_learner(data_lm, AWD_LSTM, drop_mult=0.5)
-
-learn.unfreeze()
-learn.fit_one_cycle(1, 1e-3)
-learn.save_encoder('ft_enc')
-
-learn = text_classifier_learner(data_clas, AWD_LSTM, drop_mult=0.5)
-learn.load_encoder('ft_enc')
-learn.fit_one_cycle(1, 1e-2)
-
-data_clas.show_batch()
-
-learn.predict("el producto es muy bueno")
