@@ -254,7 +254,7 @@ try:
   from sklearn.externals import joblib
   grid_search = joblib.load("grid_search.pkl")
 except:  
-  grid_search = GridSearchCV(pipeline, parameters, n_jobs=10 , scoring='roc_auc', verbose=10 )
+  grid_search = GridSearchCV(pipeline, parameters, n_jobs=1 , scoring='roc_auc', verbose=10 )
   grid_search.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
 
 grid_search.best_params_
