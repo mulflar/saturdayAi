@@ -51,6 +51,28 @@ except:
 
 general_tweets_corpus_train.head()
 
+"""##general-test-tagged-3l.xml"""
+
+try:
+    general_test_tagged = pd.read_csv('general-test-tagged-3l.csv', encoding='utf-8')
+except:
+
+    from lxml import objectify
+    xml = objectify.parse(open('general-test-tagged-3l.xml', encoding="utf8"))
+    #sample tweet object
+    root = xml.getroot()
+    general_test_tagged = pd.DataFrame(columns=('content', 'polarity'))
+    tweets = root.getchildren()
+    for i in range(0,len(tweets)):
+        tweet = tweets[i]
+        row = dict(zip(['content', 'polarity'], [tweet.content.text, tweet.sentiments.polarity.value.text]))
+        row_s = pd.Series(row)
+        row_s.name = i
+        general_test_tagged = general_test_tagged.append(row_s)
+    general_test_tagged.to_csv('general-test-tagged-3l.csv', index=False, encoding='utf-8')
+
+general_test_tagged.head()
+
 """##stompol-train-tagged.xml"""
 
 try:
@@ -146,14 +168,18 @@ tweets_corpus = pd.concat([
         social_tweets_corpus_test,
         stompol_tweets_corpus_test,
         stompol_tweets_corpus_train,
-        general_tweets_corpus_train
+        general_tweets_corpus_train,
+        general_test_tagged
         
     ])
 tweets_corpus = tweets_corpus.query('agreement != "DISAGREEMENT" and polarity != "NONE"')
 tweets_corpus = tweets_corpus[-tweets_corpus.content.str.contains('^http.*$')]
-tweets_corpus.shape
 
-tweets_corpus.sample(5)
+tweets_corpus = tweets_corpus[tweets_corpus.polarity != 'NEU']
+tweets_corpus['polarity_bin'] = 0
+tweets_corpus.polarity_bin[tweets_corpus.polarity.isin(['P', 'P+'])] = 1
+tweets_corpus.polarity_bin.value_counts(normalize=True)
+
 
 """#Tokenizing & Stemming
 
@@ -205,24 +231,8 @@ def tokenize(text):
         stems = ['']
     return stems
 
-"""Conversion  a binario de P y N"""
-
-tweets_corpus = tweets_corpus[tweets_corpus.polarity != 'NEU']
-
-tweets_corpus['polarity_bin'] = 0
-tweets_corpus.polarity_bin[tweets_corpus.polarity.isin(['P', 'P+'])] = 1
-tweets_corpus.polarity_bin.value_counts(normalize=True)
-
-#tweets_corpus_test = tweets_corpus[0:1000];
-#tweets_corpus = tweets_corpus[1000:]
-
-#tweets_corpus_test.shape
 
 """#Entrenamiento"""
-
-from sklearn.model_selection import cross_val_score, GridSearchCV
-from sklearn.svm import LinearSVC
-from sklearn.pipeline import Pipeline
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from sklearn.svm import LinearSVC
@@ -288,16 +298,14 @@ vectorizer = CountVectorizer(
 
 corpus_data_features = vectorizer.fit_transform(tweets_corpus.content)
 corpus_data_features_nd = corpus_data_features.toarray()
-
 scores = cross_val_score(
     model,
     corpus_data_features_nd[0:len(tweets_corpus)],
-    y=tweets_corpus.polarity,
+    y=tweets_corpus.polarity_bin,
     scoring='roc_auc',
     cv=5
   )
 
-#scores.mean()
 
 """##Prediccion de polaridad"""
 
@@ -311,8 +319,38 @@ pipeline = Pipeline([
 ])
 
 pipeline.fit(tweets_corpus.content, tweets_corpus.polarity_bin)
-#pipeline.fit(tweets_corpus.content, tweets_corpus.polarity)
 
-tweets = pd.read_csv('tweets.csv', encoding='utf-8')
-tweets["polarity"] = pipeline.predict(tweets.Tweet)
-tweets
+from flask import Flask, request, jsonify
+app = Flask(__name__)
+
+
+MODEL_LABELS = ['NEGATIVO',"POSITIVO"]
+MODEL_INT = ['0',"1"]
+
+@app.route('/predict_json/', methods=['POST'])
+def add_message():
+    content = request.json
+    
+    tweets = pd.DataFrame(content)
+    tweets["polarity"] = pipeline.predict(tweets.Tweet)
+   
+    
+    return tweets.to_json() #jsonify(status='complete',result=result_text)
+
+@app.route('/predict')
+def predict():
+    # Retrieve query parameters related to this request.
+    content = request.args.get('content')
+    
+    
+    d = {'tweet': [content]}
+    df = pd.DataFrame(data=d)
+    # Use the model to predict the class
+    label_index = pipeline.predict(df.tweet)
+    # Retrieve the iris name that is associated with the predicted class
+    label = MODEL_LABELS[label_index[0]]
+    label_int = MODEL_INT[label_index[0]]
+    # Create and send a response to the API caller
+    return jsonify(status='complete',tweet=content, polarity=label_int, polarity_text=label)
+
+
